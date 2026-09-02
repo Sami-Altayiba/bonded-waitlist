@@ -538,22 +538,19 @@
   }
 
   /**
-   * كل تسجيل يُرسل عبر FormSubmit.co إلى samialtayib5@gmail.com كبريد فوري.
-   * أول طلب بعد نشر الصفحة سيصل كرسالة "تفعيل" من FormSubmit تطلب الضغط على
-   * رابط تأكيد لمرة واحدة — بعدها تصل كل الطلبات التالية كرسائل بيانات مباشرة.
-   * لتغيير البريد المستقبِل لاحقًا، بدّل العنوان في السطر التالي فقط.
+   * كل تسجيل يُرسل عبر نموذج Formspree "Bonded App" — تصل الطلبات في لوحة
+   * Submissions داخل حسابك على formspree.io، وأيضًا كبريد فوري لصندوقك.
+   * لتغيير الوجهة لاحقًا، بدّل رابط endpoint في السطر التالي فقط.
    */
   function submitToWaitlist(contact, type){
-    var endpoint = 'https://formsubmit.co/ajax/samialtayib5@gmail.com';
+    var endpoint = 'https://formspree.io/f/mjyvroey';
     return fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         'نوع التواصل': type === 'email' ? 'بريد إلكتروني' : 'رقم هاتف',
         'البيانات': contact,
-        '_subject': 'تسجيل جديد في قائمة Bonded 💫',
-        '_template': 'table',
-        '_captcha': 'false'
+        '_subject': 'تسجيل جديد في قائمة Bonded 💫'
       })
     }).then(function(res){
       return { ok: res.ok };
