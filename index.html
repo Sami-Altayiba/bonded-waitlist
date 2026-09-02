@@ -369,6 +369,13 @@
 
         <form id="waitlist-form" novalidate>
           <div class="field">
+            <div role="group" aria-label="اختر الجنس" class="toggle-group">
+              <button type="button" id="gender-male" class="toggle-btn" aria-pressed="false">ذكر</button>
+              <button type="button" id="gender-female" class="toggle-btn" aria-pressed="false">أنثى</button>
+            </div>
+          </div>
+
+          <div class="field">
             <label for="contact-input" class="sr-only">البريد الإلكتروني أو رقم الهاتف</label>
             <div class="phone-input-row">
               <select id="country-select" class="country-select hidden" aria-label="اختر الدولة" dir="ltr">
@@ -489,6 +496,20 @@
   var phoneHint = document.getElementById('phone-hint');
   var errorEl = document.getElementById('form-error');
 
+  // ---- gender (quick single-tap selector — used only for waitlist balance/segmentation) ----
+  var genderMale = document.getElementById('gender-male');
+  var genderFemale = document.getElementById('gender-female');
+  var gender = null;
+
+  function setGender(next){
+    gender = next;
+    genderMale.setAttribute('aria-pressed', String(gender === 'male'));
+    genderFemale.setAttribute('aria-pressed', String(gender === 'female'));
+    errorEl.classList.add('hidden');
+  }
+  genderMale.addEventListener('click', function(){ setGender('male'); });
+  genderFemale.addEventListener('click', function(){ setGender('female'); });
+
   function setMode(next){
     mode = next;
     toggleEmail.setAttribute('aria-pressed', String(mode === 'email'));
@@ -542,7 +563,7 @@
    * Submissions داخل حسابك على formspree.io، وأيضًا كبريد فوري لصندوقك.
    * لتغيير الوجهة لاحقًا، بدّل رابط endpoint في السطر التالي فقط.
    */
-  function submitToWaitlist(contact, type){
+  function submitToWaitlist(contact, type, genderLabel){
     var endpoint = 'https://formspree.io/f/mjyvroey';
     return fetch(endpoint, {
       method: 'POST',
@@ -550,6 +571,7 @@
       body: JSON.stringify({
         'نوع التواصل': type === 'email' ? 'بريد إلكتروني' : 'رقم هاتف',
         'البيانات': contact,
+        'الجنس': genderLabel,
         '_subject': 'تسجيل جديد في قائمة Bonded 💫'
       })
     }).then(function(res){
@@ -572,6 +594,12 @@
     var valid = mode === 'email' ? isValidEmail(value) : isValidPhone(value, countryKey);
     var contact = value;
 
+    if (!gender){
+      errorEl.textContent = 'الرجاء اختيار الجنس.';
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
     if (!valid){
       errorEl.textContent = mode === 'email'
         ? 'الرجاء إدخال بريد إلكتروني صحيح.'
@@ -593,7 +621,8 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'جارٍ الحجز...';
 
-    submitToWaitlist(contact, mode).then(function(res){
+    var genderLabel = gender === 'male' ? 'ذكر' : 'أنثى';
+    submitToWaitlist(contact, mode, genderLabel).then(function(res){
       if (res && res.ok){
         successDetail.textContent = 'سنراسلك على ' + displayContact + ' فور تحديد موعد الإطلاق.';
         formView.classList.add('hidden');
